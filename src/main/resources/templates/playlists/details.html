@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="${playlist.playlistName}">Детали плейлиста</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+</head>
+<body>
+<nav class="navbar navbar-light bg-light mb-4">
+    <div class="container">
+        <a class="btn btn-outline-secondary" th:href="@{/playlists}">← Назад</a>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="d-flex align-items-center mb-4">
+        <img th:if="${playlist.posterUrl != null}"
+             th:src="${playlist.posterUrl}"
+             class="rounded me-3"
+             style="width:200px;height:200px;object-fit:cover;"
+             alt="Постер плейлиста"/>
+        <img th:if="${playlist.posterUrl == null}"
+             th:src="@{/images/playlist-default.png}"
+             class="rounded me-3"
+             style="width:200px;height:200px;object-fit:cover;"
+             alt="Нет постера"/>
+        <div>
+            <h1 th:text="${playlist.playlistName}">Название плейлиста</h1>
+            <p class="text-muted">
+                Создан:
+                <span th:text="${#temporals.format(playlist.playlistCreatedAt,'dd.MM.yyyy HH:mm')}">дата</span>
+            </p>
+        </div>
+    </div>
+
+        <h5>Фильмы</h5>
+        <div th:if="${#lists.isEmpty(playlist.playlistMovies)}" class="mb-3 text-muted">
+            Плейлист пуст.
+        </div>
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+            <div class="col" th:each="m : ${playlist.playlistMovies}">
+                <div class="card h-100 text-center">
+                    <a th:href="@{/movies/{movieId}(movieId=${m.movieId},fromPlaylist=${playlist.playlistId})}">
+                        <img th:if="${m.moviePoster != null}"
+                             th:src="@{'/files/' + ${m.moviePoster}}"
+                             class="card-img-top" alt="Постер фильма"/>
+                        <img th:if="${m.moviePoster == null}"
+                             th:src="@{/images/movie-default.png}"
+                             class="card-img-top" alt="Нет постера"/>
+                    </a>
+                    <div class="card-body">
+                        <h6 class="card-title">
+                            <a th:href="@{/movies/{mid}(mid=${m.movieId},fromPlaylist=${playlist.playlistId})}"
+                               th:text="${m.movieTitle}">Название</a>
+                        </h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="detail-footer text-end mt-4">
+        <form th:action="@{/playlists/{id}/delete(id=${playlist.playlistId})}"
+              method="post">
+            <button class="btn btn-danger">Удалить плейлист</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>

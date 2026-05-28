@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy"
+                   fileNamePattern="logs/%d{yyyy-MM-dd}.%i.log"
+                   maxHistory="30">
+        <timeBasedFileNamingAndTriggeringPolicy
+                class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+            <maxFileSize>10MB</maxFileSize>
+        </timeBasedFileNamingAndTriggeringPolicy>
+    </rollingPolicy>
+
+    <appender name="AUTH_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/auth.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/auth-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="MOOD_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/mood.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/mood-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="MOVIE_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/movie.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/movie-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="ACTOR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/actor.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/actor-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="DIRECTOR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/director.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/director-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="PLAYLIST_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/playlist.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/playlist-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="GENRE_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/genre.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/genre-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="CORE_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/core.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/core-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="com.example.moviesbymood.controllers.AuthController" level="INFO" additivity="false">
+        <appender-ref ref="AUTH_FILE"/>
+    </logger>
+    <logger name="com.example.moviesbymood.services.SignUpServiceImpl" level="INFO" additivity="false">
+        <appender-ref ref="AUTH_FILE"/>
+    </logger>
+
+    <logger name="com.example.moviesbymood.controllers.PublicMoodController" level="WARN" additivity="false">
+        <appender-ref ref="MOOD_FILE"/>
+    </logger>
+    <logger name="com.example.moviesbymood.controllers.MoodCategoryController" level="INFO" additivity="false">
+        <appender-ref ref="MOOD_FILE"/>
+    </logger>
+    <logger name="com.example.moviesbymood.services.MoodCategoryServiceImpl" level="INFO" additivity="false">
+        <appender-ref ref="MOOD_FILE"/>
+    </logger>
+
+    <logger name="com.example.moviesbymood.controllers.PublicMovieController" level="WARN" additivity="false">
+        <appender-ref ref="MOVIE_FILE"/>
+    </logger>
+    <logger name="com.example.moviesbymood.controllers.MovieController" level="INFO" additivity="false">
+        <appender-ref ref="MOVIE_FILE"/>
+    </logger>
+    <logger name="com.example.moviesbymood.services.MovieServiceImpl" level="INFO" additivity="false">
+        <appender-ref ref="MOVIE_FILE"/>
+    </logger>
+
+    <logger name="com.example.moviesbymood.controllers.PublicActorController" level="WARN" additivity="false">
+        <appender-ref ref="ACTOR_FILE"/>
+    </logger>
+    <logger name="com.example.moviesbymood.controllers.ActorController" level="INFO" additivity="false">
+        <appender-ref ref="ACTOR_FILE"/>
+    </logger>
+    <logger name="com.example.moviesbymood.services.ActorServiceImpl" level="INFO" additivity="false">
+        <appender-ref ref="ACTOR_FILE"/>
+    </logger>
+
+    <logger name="com.example.moviesbymood.controllers.PublicDirectorController" level="WARN" additivity="false">
+        <appender-ref ref="DIRECTOR_FILE"/>
+    </logger>
+    <logger name="com.example.moviesbymood.controllers.DirectorController" level="INFO" additivity="false">
+        <appender-ref ref="DIRECTOR_FILE"/>
+    </logger>
+    <logger name="com.example.moviesbymood.services.DirectorServiceImpl" level="INFO" additivity="false">
+        <appender-ref ref="DIRECTOR_FILE"/>
+    </logger>
+
+    <logger name="com.example.moviesbymood.controllers.PlaylistController" level="INFO" additivity="false">
+        <appender-ref ref="PLAYLIST_FILE"/>
+    </logger>
+    <logger name="com.example.moviesbymood.services.PlaylistServiceImpl" level="INFO" additivity="false">
+        <appender-ref ref="PLAYLIST_FILE"/>
+    </logger>
+
+    <logger name="com.example.moviesbymood.controllers.GenreController" level="INFO" additivity="false">
+        <appender-ref ref="GENRE_FILE"/>
+    </logger>
+    <logger name="com.example.moviesbymood.services.GenreServiceImpl" level="INFO" additivity="false">
+        <appender-ref ref="GENRE_FILE"/>
+    </logger>
+
+    <logger name="com.example.moviesbymood.exception.GlobalExceptionHandler" level="WARN" additivity="false">
+        <appender-ref ref="CORE_FILE"/>
+    </logger>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="CORE_FILE"/>
+    </root>
+
+</configuration>

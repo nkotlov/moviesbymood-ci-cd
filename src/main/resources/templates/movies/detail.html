@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="${movie.movieTitle}">Детали фильма</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+    <link th:href="@{/css/style.css}" rel="stylesheet"/>
+</head>
+<body>
+
+<nav class="navbar navbar-light bg-light mb-4">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/movies}">MoviesByMood</a>
+
+        <a class="btn btn-outline-secondary"
+           th:if="${fromProfile}"
+           th:href="@{/profile}">
+            ← Назад
+        </a>
+
+        <a class="btn btn-outline-secondary"
+           th:if="${fromPlaylist != null}"
+           th:href="@{/playlists/{pid}(pid=${fromPlaylist})}">
+            ← Назад
+        </a>
+        <a class="btn btn-outline-secondary"
+           th:if="${!fromProfile} and !${fromPlaylist} and ${fromMood} != null"
+           th:href="@{/moods/{mid}(mid=${fromMood})}">
+            ← Назад
+        </a>
+        <a class="btn btn-outline-secondary"
+           th:if="${!fromProfile} and !${fromPlaylist} and ${fromMood} == null"
+           th:href="@{/movies}">
+            ← Назад
+        </a>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-4 text-center">
+            <img th:if="${movie.moviePoster != null}"
+                 th:src="@{${movie.moviePoster}}"
+                 class="img-fluid rounded mb-3"
+                 alt="Постер фильма"/>
+            <img th:if="${movie.moviePoster == null}"
+                 th:src="@{/images/default-movie.png}"
+                 class="img-fluid rounded mb-3"
+                 alt="Нет постера"/>
+
+            <button
+                    class="btn"
+                    th:classappend="${isFavorite} ? ' btn-danger' : ' btn-outline-danger'"
+                    th:attr="data-movie-id=${movie.movieId}"
+                    onclick="toggleFavorite(this)">
+                <i class="fas fa-heart"></i>
+                <span th:text="${isFavorite} ? 'В избранном' : 'В избранное'"></span>
+            </button>
+        </div>
+
+        <div class="col-md-8">
+            <h1 th:text="${movie.movieTitle}">Название фильма</h1>
+
+            <p class="text-muted mb-1">
+                <strong>Год:</strong>
+                <span th:text="${#temporals.format(movie.movieReleaseDate,'yyyy')}">2025</span>
+                &nbsp;|&nbsp;
+                <strong>Длительность:</strong>
+                <span th:text="${movie.movieDuration}">120</span> мин.
+            </p>
+
+            <p>
+                <strong>Жанры:</strong>
+                <span th:each="g,stat : ${movie.genres}">
+                    <span th:text="${g.genreName}">Жанр</span>
+                    <span th:if="${!stat.last}">, </span>
+                </span>
+            </p>
+            <p>
+                <strong>Актёры:</strong>
+                <span th:each="a,stat : ${movie.actors}">
+    <a th:href="@{/actors/{id}(id=${a.actorId},fromMovie=${movie.movieId})}"
+       th:text="${a.actorFullName}">Актёр</a>
+    <span th:if="${!stat.last}">, </span>
+  </span>
+            </p>
+            <p>
+                <strong>Режиссёры:</strong>
+                <span th:each="d, stat : ${movie.directors}">
+                    <a th:href="@{/directors/{id}(id=${d.directorId},fromMovie=${movie.movieId})}"
+                       th:text="${d.directorFullName}">Имя</a>
+    <span th:if="${!stat.last}">, </span>
+  </span>
+            </p>
+
+            <hr/>
+
+            <p th:text="${movie.movieDescription}">Описание фильма…</p>
+            <hr/>
+
+            <div class="mb-4">
+                <h5>Средний рейтинг:
+                    <span th:text="${#numbers.formatDecimal(averageRating,1,1)}">0.0</span>
+                </h5>
+
+                <div th:if="${userRating != null}">
+                    <span>Вы поставили: <span th:text="${userRating}">0</span></span>
+                    <button class="btn btn-link p-0" type="button" onclick="toggleRatingForm()">
+                        Изменить
+                    </button>
+                </div>
+                <div th:if="${userRating == null}">
+                    <span>Не оценено</span>
+                    <button class="btn btn-link p-0" type="button" onclick="toggleRatingForm()">
+                        Оценить
+                    </button>
+                </div>
+
+                <div id="rating-form-container" style="display: none; margin-top: 10px;">
+                    <form th:action="@{/movies/{id}/rating(id=${movie.movieId})}"
+                          th:object="${newRating}"
+                          method="post"
+                          class="input-group needs-validation"
+                          novalidate>
+                        <input type="number"
+                               th:field="*{score}"
+                               class="form-control d-inline-block w-auto"
+                               min="1" max="10"
+                               placeholder="1–10"
+                               required
+                               th:value="${userRating}" />
+                        <button class="btn btn-primary" type="submit">
+                            Сохранить
+                        </button>
+                        <div class="invalid-feedback"
+                             th:if="${#fields.hasErrors('score')}"
+                             th:errors="*{score}"></div>
+                    </form>
+                </div>
+            </div>
+
+            <hr/>
+
+            <div>
+                <h5>Отзывы</h5>
+                <div th:each="c : ${comments}" class="mb-3">
+                    <p class="mb-1">
+                        <strong th:text="${c.commentUser.userNickname}">User</strong>
+                        <small class="text-muted"
+                               th:text="${#temporals.format(c.commentCreatedAt,'dd.MM.yyyy HH:mm')}">дата</small>
+                    </p>
+                    <p th:text="${c.commentText}">Текст отзыва</p>
+                    <hr/>
+                </div>
+
+                <form th:action="@{/movies/{id}/comments(id=${movie.movieId})}"
+                      th:object="${newComment}"
+                      method="post"
+                      class="needs-validation"
+                      novalidate>
+        <textarea th:field="*{commentText}"
+                  rows="3"
+                  placeholder="Ваш отзыв"
+                  required></textarea>
+                    <div class="invalid-feedback"
+                         th:if="${#fields.hasErrors('commentText')}"
+                         th:errors="*{commentText}"></div>
+                    <button class="btn btn-secondary">Добавить отзыв</button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    function toggleFavorite(btn) {
+        const movieId = btn.getAttribute('data-movie-id');
+        const token   = /*[[${_csrf.token}]]*/ '';
+        const header  = /*[[${_csrf.headerName}]]*/ 'X-CSRF-TOKEN';
+
+        fetch('/movies/' + movieId + '/favorite', {
+            method: 'POST',
+            headers: { [header]: token }
+        })
+            .then(resp => {
+                if (resp.ok) { location.reload(); }
+                else { alert("Не удалось обновить избранное"); }
+            })
+            .catch(err => {
+                console.error("Ошибка при запросе:", err);
+                alert("Ошибка сети");
+            });
+    }
+
+    function toggleRatingForm() {
+        const container = document.getElementById('rating-form-container');
+        if (!container) return;
+        container.style.display = (container.style.display === 'none' || container.style.display === '')
+            ? 'block'
+            : 'none';
+    }
+
+    (function () {
+        'use strict';
+        document.querySelectorAll('.needs-validation').forEach(form =>
+            form.addEventListener('submit', e => {
+                if (!form.checkValidity()) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            })
+        );
+    })();
+</script>
+
+</body>
+</html>

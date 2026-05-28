@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: moviesbymood-app
+  namespace: kotlov20260516
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: moviesbymood-app
+  template:
+    metadata:
+      labels:
+        app: moviesbymood-app
+    spec:
+      initContainers:
+        - name: wait-for-postgres
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - until nc -z moviesbymood-postgres 5432; do echo waiting for postgres; sleep 2; done
+      containers:
+        - name: moviesbymood-app
+          image: docker.io/library/moviesbymood-app:v1
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8081
+          env:
+            - name: SERVER_PORT
+              value: "8081"
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://moviesbymood-postgres:5432/moodmovies
+            - name: SPRING_DATASOURCE_USERNAME
+              value: postgres
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: postgres
+            - name: STORAGE_PATH
+              value: /app/files
+            - name: APP_CONFIRM_URL
+              value: http://localhost:8081/confirm
+            - name: SPRING_MAIL_USERNAME
+              value: your_email@gmail.com
+            - name: SPRING_MAIL_PASSWORD
+              value: your_mail_app_password
+            - name: GOOGLE_OAUTH_CLIENT_ID
+              value: your_google_client_id
+            - name: GOOGLE_OAUTH_CLIENT_SECRET
+              value: your_google_client_secret
+            - name: GOOGLE_OAUTH_REDIRECT_URI
+              value: http://localhost:8081/oauth2/callback/google
+            - name: TEXTRAZOR_API_KEY
+              value: your_textrazor_api_key
+            - name: OMDB_API_KEY
+              value: your_omdb_api_key
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: moviesbymood-app
+  namespace: kotlov20260516
+spec:
+  selector:
+    app: moviesbymood-app
+  ports:
+    - port: 8081
+      targetPort: 8081

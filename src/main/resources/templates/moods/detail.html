@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="${mood.moodName}">Детали настроения</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+          rel="stylesheet"/>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+    <link th:href="@{/css/style.css}" rel="stylesheet"/>
+</head>
+<body>
+<nav class="navbar navbar-light bg-light mb-4">
+    <div class="container">
+        <a class="btn btn-outline-secondary"
+           th:if="${fromProfile}"
+           th:href="@{/profile}">
+            ← Назад
+        </a>
+
+        <a class="btn btn-outline-secondary"
+           th:if="${!fromProfile}"
+           th:href="@{/moods}">
+            ← Назад
+        </a>
+
+        <button class="btn"
+                th:classappend="${isFavoriteMood} ? ' btn-danger' : ' btn-outline-danger'"
+                th:attr="data-mood-id=${mood.moodId}"
+                onclick="toggleFavoriteMood(this)">
+            <i class="fas fa-heart"></i>
+            <span th:text="${isFavoriteMood} ? 'В избранном' : 'В избранное'">Избранное</span>
+        </button>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="text-center mb-4">
+        <img th:if="${mood.iconFilename != null}"
+             th:src="@{/files/{fn}(fn=${mood.iconFilename})}"
+             class="img-fluid w-25 mx-auto d-block rounded mb-3"
+             alt="Иконка настроения"/>
+        <img th:if="${mood.iconFilename == null}"
+             th:src="@{/images/default-mood.png}"
+             class="img-fluid w-25 mx-auto d-block rounded mb-3"
+             alt="Иконка по умолчанию"/>
+        <h1 th:text="${mood.moodName}">Название настроения</h1>
+        <p class="text-muted" th:text="${mood.moodDescription}">Описание</p>
+    </div>
+
+    <hr/>
+
+    <div class="mb-4">
+        <h5>
+            Средний рейтинг:
+            <span th:text="${#numbers.formatDecimal(averageRating, 1, 1)}">0.0</span>
+        </h5>
+
+        <div th:if="${userRating != null}">
+            <span>Вы поставили: <strong th:text="${userRating}">0</strong></span>
+            <button class="btn btn-link p-0" type="button" onclick="toggleRatingForm()">
+                Изменить
+            </button>
+        </div>
+
+        <div th:if="${userRating == null}">
+            <span>Не оценено</span>
+            <button class="btn btn-link p-0" type="button" onclick="toggleRatingForm()">
+                Оценить
+            </button>
+        </div>
+
+        <div id="rating-form-container" style="display: none; margin-top: 10px;">
+            <form th:action="@{/moods/{id}/rating(id=${mood.moodId})}"
+                  th:object="${newRating}"
+                  method="post"
+                  class="input-group needs-validation"
+                  novalidate>
+                <input type="number"
+                       th:field="*{score}"
+                       class="form-control d-inline-block w-auto"
+                       min="1" max="10"
+                       placeholder="1–10"
+                       required
+                       th:value="${userRating}" />
+                <button class="btn btn-primary" type="submit">Сохранить</button>
+                <div class="invalid-feedback"
+                     th:if="${#fields.hasErrors('score')}"
+                     th:errors="*{score}"></div>
+            </form>
+        </div>
+    </div>
+
+    <hr/>
+
+    <div class="mb-5">
+        <h5>Фильмы с этим настроением</h5>
+        <div th:if="${#lists.isEmpty(moodMovies)}">
+            <p>Пока нет фильмов, связанных с этим настроением.</p>
+        </div>
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3"
+             th:if="${!#lists.isEmpty(moodMovies)}">
+            <div class="col" th:each="mv : ${moodMovies}">
+                <div class="card h-100">
+                    <a th:href="@{/movies/{movieId}(movieId=${mv.movieId},fromMood=${mood.moodId})}">
+                        <img th:if="${mv.moviePoster != null}"
+                             th:src="@{${mv.moviePoster}}"
+                             class="img-fluid w-50 mx-auto d-block mb-2"
+                             alt="Постер фильма"/>
+                        <img th:if="${mv.moviePoster == null}"
+                             th:src="@{/images/default-movie.png}"
+                             class="img-fluid w-50 mx-auto d-block mb-2"
+                             alt="Нет постера"/>
+                    </a>
+                    <div class="card-body">
+                        <h6 class="card-title" th:text="${mv.movieTitle}">Название</h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr/>
+
+    <h5>Отзывы</h5>
+    <div th:each="c : ${comments}" class="mb-3">
+        <p>
+            <strong th:text="${c.commentUser.userNickname}">User</strong>
+            <small class="text-muted"
+                   th:text="${#temporals.format(c.moodCommentCreatedAt,'dd.MM.yyyy HH:mm')}">дата</small>
+        </p>
+        <p th:text="${c.moodCommentText}">Текст</p>
+        <hr/>
+    </div>
+
+    <form th:action="@{/moods/{id}/comments(id=${mood.moodId})}"
+          th:object="${newComment}"
+          method="post"
+          class="needs-validation"
+          novalidate>
+        <textarea th:field="*{commentText}"
+                  class="form-control mb-2"
+                  rows="3"
+                  placeholder="Ваш отзыв"
+                  required></textarea>
+        <div class="invalid-feedback"
+             th:if="${#fields.hasErrors('commentText')}"
+             th:errors="*{commentText}">
+        </div>
+        <button class="btn btn-secondary">Добавить отзыв</button>
+    </form>
+
+<script th:inline="javascript">
+    function toggleFavoriteMood(btn) {
+        const id    = btn.getAttribute('data-mood-id');
+        const token = /*[[${_csrf.token}]]*/ '';
+        const header= /*[[${_csrf.headerName}]]*/ 'X-CSRF-TOKEN';
+        fetch(`/moods/${id}/favorite`, {
+            method: 'POST',
+            headers: { [header]: token }
+        }).then(resp => {
+            if (resp.ok) {
+                location.reload();
+            } else {
+                alert("Не удалось обновить избранное");
+            }
+        }).catch(err => {
+            console.error("Ошибка при запросе:", err);
+            alert("Ошибка сети");
+        });
+    }
+
+    function toggleRatingForm() {
+        const container = document.getElementById('rating-form-container');
+        if (!container) return;
+        container.style.display = (container.style.display === 'none' || container.style.display === '')
+            ? 'block'
+            : 'none';
+    }
+
+    (function(){
+        'use strict';
+        document.querySelectorAll('.needs-validation').forEach(form =>
+            form.addEventListener('submit', e => {
+                if (!form.checkValidity()) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            })
+        );
+    })();
+</script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Проверка AJAX + CSRF</title>
+
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const csrfToken = document.querySelector('meta[name="_csrf"]').getAttribute("content");
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]').getAttribute("content");
+
+            document.getElementById("ajaxBtn").addEventListener("click", () => {
+                const data = { text: "Проверка CSRF" };
+
+                fetch("/ajax", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        [csrfHeader]: csrfToken
+                    },
+                    body: JSON.stringify(data)
+                })
+                    .then(resp => {
+                        if (!resp.ok) {
+                            throw new Error("Ошибка сервера, код: " + resp.status);
+                        }
+                        return resp.json();
+                    })
+                    .then(json => {
+                        document.getElementById("output").innerText = json.message;
+                    })
+                    .catch(err => {
+                        alert("AJAX-ошибка: " + err);
+                    });
+            });
+        });
+    </script>
+</head>
+<body style="margin: 20px;">
+<h2>Проверка AJAX + CSRF</h2>
+<button id="ajaxBtn">Отправить POST /ajax</button>
+<p id="output" style="margin-top: 20px; color: green;"></p>
+</body>
+</html>

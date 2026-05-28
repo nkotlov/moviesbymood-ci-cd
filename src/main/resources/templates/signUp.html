@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Регистрация</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f5f5f5;
+        }
+        .form-container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            width: 350px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 25px;
+        }
+        .error-message {
+            color: red;
+            font-size: 0.9em;
+            margin: 5px 0 0;
+        }
+        .input-error {
+            border: 1px solid red !important;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        input {
+            padding: 12px;
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #454aa0;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #3a3f8a;
+        }
+        .auth-link {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+        .auth-link a {
+            color: #454aa0;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .auth-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+<div class="form-container">
+    <h1>Регистрация</h1>
+
+    <div th:if="${error != null}" class="error-message" style="text-align: center;" th:text="${error}"></div>
+
+    <form th:action="@{/signUp}" th:object="${registrationForm}" method="post">
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" th:field="*{email}" id="email"
+                   th:classappend="${#fields.hasErrors('email') or emailError != null} ? 'input-error' : ''"
+                   placeholder="your@example.com" required/>
+            <p th:if="${#fields.hasErrors('email')}" class="error-message" th:errors="*{email}"></p>
+            <p th:if="${emailError != null}" class="error-message" th:text="${emailError}"></p>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Пароль:</label>
+            <input type="password" th:field="*{password}" id="password"
+                   th:classappend="${#fields.hasErrors('password')} ? 'input-error' : ''"
+                   placeholder="Минимум 8 символов" required/>
+            <p th:if="${#fields.hasErrors('password')}" class="error-message" th:errors="*{password}"></p>
+        </div>
+
+        <div class="form-group">
+            <label for="nickname">Никнейм:</label>
+            <input type="text" th:field="*{nickname}" id="nickname"
+                   th:classappend="${#fields.hasErrors('nickname') or nicknameError != null} ? 'input-error' : ''"
+                   placeholder="Ваше имя" required/>
+            <p th:if="${#fields.hasErrors('nickname')}" class="error-message" th:errors="*{nickname}"></p>
+            <p th:if="${nicknameError != null}" class="error-message" th:text="${nicknameError}"></p>
+        </div>
+
+        <button type="submit">Зарегистрироваться</button>
+    </form>
+
+    <p class="auth-link">Уже есть аккаунт? <a th:href="@{/login}">Войти</a></p>
+</div>
+</body>
+</html>

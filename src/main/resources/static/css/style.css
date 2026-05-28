@@ -1,0 +1,220 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f9faff;
+    color: #333;
+    line-height: 1.5;
+    padding: 20px;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    color: #004080 !important;
+}
+
+.navbar-light .navbar-nav .nav-link {
+    color: #004080;
+}
+.navbar-light .navbar-nav .nav-link.active,
+.navbar-light .navbar-nav .nav-link:hover {
+    background: #e6f0ff;
+    border-radius: 4px;
+}
+
+.btn, .navbar-toggler-icon, .admin-btn, .logout-btn {
+    font-size: 0.9rem;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.btn-primary, .admin-btn {
+    background-color: #0066cc;
+    border: 1px solid #005bb5;
+    color: white;
+}
+.btn-primary:hover, .admin-btn:hover {
+    background-color: #005bb5;
+}
+
+.btn-secondary, .logout-btn {
+    background-color: #cce0ff;
+    border: 1px solid #99c2ff;
+    color: #004080;
+}
+.btn-secondary:hover, .logout-btn:hover {
+    background-color: #b3d1ff;
+}
+
+table {
+    background: white;
+    border-collapse: collapse;
+}
+table th, table td {
+    padding: 0.75rem;
+    border: 1px solid #dee2e6;
+}
+table thead {
+    background: #e6f0ff;
+}
+.movie-card {
+    background: white;
+    border: 1px solid #cce0ff;
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+    transition: box-shadow 0.2s;
+}
+.movie-card:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.movie-poster {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+.movie-title {
+    padding: 0.5rem;
+    background: #e6f0ff;
+    text-align: center;
+    font-weight: bold;
+}
+.favorite-btn {
+    position: absolute;
+    top: 8px; right: 8px;
+    background: none;
+    border: none;
+    font-size: 1.4rem;
+    color: #ccc;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.favorite-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: none;
+    border: none;
+    font-size: 1.4rem;
+    color: #ccc;
+    cursor: pointer;
+    transition: color 0.2s;
+    z-index: 10;
+}
+.favorite-btn.favorited {
+    color: #e60000;
+}
+input, select, textarea {
+    border: 1px solid #0066cc;
+    border-radius: 4px;
+    padding: 0.5rem;
+    width: 100%;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+}
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #004080;
+}
+.invalid-feedback {
+    color: #e60000;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+.mood-card .card-img-top {
+    height: 100px;
+    object-fit: cover;
+}
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+.profile-header img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border: 2px solid #0066cc;
+}
+.movie-card, .mood-card {
+    border: 1px solid #cce0ff;
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+    background: white;
+    transition: box-shadow 0.2s;
+}
+.movie-card:hover, .mood-card:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.movie-poster {
+    display: block;
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+}
+.mood-card .card-img-top {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+}
+.favorite-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: none;
+    border: none;
+    font-size: 1.4rem;
+    color: #ccc;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.list-group-item {
+    margin-bottom: 0 !important;
+    padding-top: 0.5rem !important;
+    padding-bottom: 0.5rem !important;
+}
+.mood-card .card-img-top {
+    width: 100% !important;
+    height: 140px !important;
+    object-fit: cover !important;
+}
+.container > .list-group > .list-group-item {
+    margin-bottom: 0 !important;
+    padding-top: 0.4rem !important;
+    padding-bottom: 0.4rem !important;
+}
+.img-scale-60 {
+    max-width: 60%;
+    height: auto;
+    display: block;
+    margin: 0 auto 1rem;
+}
+.detail-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 80vh;
+}
+.detail-body {
+    flex: 1;
+}
+.detail-footer {
+    margin-top: auto;
+}
+.invalid-feedback {
+    display: none !important;
+}
+.card-img-top {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+}
+.mood-card .card-img-top {
+    height: 140px !important;
+}

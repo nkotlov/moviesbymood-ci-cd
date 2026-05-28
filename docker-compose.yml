@@ -1,0 +1,105 @@
+services:
+  app:
+    image: ${APP_IMAGE:-moviesbymood-app:latest}
+    container_name: moviesbymood-app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      loki:
+        condition: service_started
+    ports:
+      - "8081:8081"
+    environment:
+      SERVER_PORT: 8081
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/moodmovies
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      STORAGE_PATH: /app/files
+      APP_CONFIRM_URL: http://localhost:8081/confirm
+
+      SPRING_MAIL_USERNAME: your_email@gmail.com
+      SPRING_MAIL_PASSWORD: your_mail_app_password
+
+      GOOGLE_OAUTH_CLIENT_ID: your_google_client_id
+      GOOGLE_OAUTH_CLIENT_SECRET: your_google_client_secret
+      GOOGLE_OAUTH_REDIRECT_URI: http://localhost:8081/oauth2/callback/google
+
+      TEXTRAZOR_API_KEY: your_textrazor_api_key
+      OMDB_API_KEY: your_omdb_api_key
+    volumes:
+      - ./logs:/app/logs
+      - ./files:/app/files
+    networks:
+      - movies_net
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:15
+    container_name: moviesbymood-postgres
+    environment:
+      POSTGRES_DB: moodmovies
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - movies_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d moodmovies"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  loki:
+    image: grafana/loki:2.9.8
+    container_name: moviesbymood-loki
+    command: -config.file=/etc/loki/loki-config.yml
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./config/loki/loki-config.yml:/etc/loki/loki-config.yml:ro
+      - loki_data:/loki
+    networks:
+      - movies_net
+    restart: unless-stopped
+
+  promtail:
+    image: grafana/promtail:2.9.8
+    container_name: moviesbymood-promtail
+    command: -config.file=/etc/promtail/promtail-config.yml
+    volumes:
+      - ./config/promtail/promtail-config.yml:/etc/promtail/promtail-config.yml:ro
+      - ./logs:/var/log/moviesbymood:ro
+    depends_on:
+      - loki
+      - app
+    networks:
+      - movies_net
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:10.4.5
+    container_name: moviesbymood-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./config/grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      - loki
+    networks:
+      - movies_net
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  loki_data:
+  grafana_data:
+
+networks:
+  movies_net:
+    driver: bridge

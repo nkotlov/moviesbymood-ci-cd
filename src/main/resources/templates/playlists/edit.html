@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="${updateRequest.playlistName} + ' — Редактировать'">Редактировать плейлист</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+</head>
+<body>
+<nav class="navbar navbar-light bg-light mb-4">
+    <div class="container">
+        <a class="btn btn-outline-secondary" th:href="@{/playlists}">← Назад</a>
+    </div>
+</nav>
+
+<div class="container">
+    <h1>Редактировать плейлист</h1>
+    <form th:action="@{/playlists/{id}/edit(id=${playlist.playlistId})}"
+          th:object="${updateRequest}"
+          method="post"
+          enctype="multipart/form-data"
+          class="needs-validation" novalidate>
+
+        <div class="mb-3">
+            <label for="playlistName" class="form-label">Название<span class="text-danger">*</span></label>
+            <input type="text"
+                   id="playlistName"
+                   th:field="*{playlistName}"
+                   class="form-control"
+                   required/>
+            <div class="invalid-feedback" th:errors="*{playlistName}">Обязательное поле</div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Постер плейлиста</label>
+            <div class="mb-2">
+                <img id="posterPreviewEdit"
+                     th:src="${playlist.posterUrl != null} ? ${playlist.posterUrl} : @{/images/playlist-default.png}"
+                     class="img-thumbnail rounded"
+                     style="max-width:200px;"
+                     alt="Превью постера"/>
+            </div>
+            <input type="file"
+                   id="posterFileEdit"
+                   name="posterFile"
+                   accept="image/*"
+                   class="form-control"
+                   onchange="onPosterSelectedEdit(this)"/>
+            <div class="form-text">Если не выбрать — останется прежний.</div>
+        </div>
+
+        <input type="hidden" th:field="*{posterFilename}"/>
+
+        <div id="selectedMoviesInputs">
+            <input th:each="mid : ${updateRequest.movieIds}"
+                   type="hidden" name="movieIds" th:value="${mid}"/>
+        </div>
+
+        <div class="mb-3">
+            <label for="movieSearch" class="form-label">Поиск фильма</label>
+            <input type="text" id="movieSearch" class="form-control"
+                   placeholder="Введите часть названия..." onkeyup="filterMovies()"/>
+        </div>
+
+        <div class="table-responsive mb-4" style="max-height:400px; overflow-y:auto">
+            <table class="table table-hover" id="moviesTable">
+                <thead class="table-light">
+                <tr>
+                    <th>Название</th>
+                    <th>Год</th>
+                    <th class="text-center">Действие</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="m : ${allMovies}"
+                    class="movie-row"
+                    th:classappend="${updateRequest.movieIds.contains(m.movieId)} ? 'selected-row'">
+                    <td class="movie-title" th:text="${m.movieTitle}">Название</td>
+                    <td th:text="${m.movieReleaseDate != null ? #temporals.format(m.movieReleaseDate,'yyyy') : '-'}">Год</td>
+                    <td class="text-center">
+                        <button type="button"
+                                class="btn btn-sm"
+                                th:classappend="${updateRequest.movieIds.contains(m.movieId)} ? 'btn-danger' : 'btn-outline-primary'"
+                                th:text="${updateRequest.movieIds.contains(m.movieId)} ? 'Убрать' : 'Добавить'"
+                                th:attr="data-movie-id=${m.movieId}"
+                                onclick="toggleMovie(this)">
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <button class="btn btn-primary">Сохранить</button>
+        <a th:href="@{/moods}" class="btn btn-secondary ms-2">Отмена</a>
+    </form>
+</div>
+
+<script th:inline="javascript">
+
+    function onPosterSelectedEdit(input) {
+        const file = input.files[0];
+        const preview = document.getElementById('posterPreviewEdit');
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = e => preview.src = e.target.result;
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function filterMovies() {
+        const f = document.getElementById('movieSearch').value.toLowerCase();
+        document.querySelectorAll('.movie-row').forEach(r =>
+            r.style.display = r.querySelector('.movie-title').textContent
+                .toLowerCase().includes(f) ? '' : 'none'
+        );
+    }
+    function toggleMovie(btn) {
+        const id = btn.getAttribute('data-movie-id'),
+            row = btn.closest('tr'),
+            cont = document.getElementById('selectedMoviesInputs'),
+            existing = cont.querySelector(`input[value="${id}"]`);
+        if (existing) {
+            existing.remove();
+            row.classList.remove('selected-row');
+            btn.textContent = 'Добавить';
+            btn.classList.replace('btn-danger','btn-outline-primary');
+        } else {
+            const hid = document.createElement('input');
+            hid.type = 'hidden'; hid.name = 'movieIds'; hid.value = id;
+            cont.appendChild(hid);
+            row.classList.add('selected-row');
+            btn.textContent = 'Убрать';
+            btn.classList.replace('btn-outline-primary','btn-danger');
+        }
+    }
+</script>
+</body>
+</html>

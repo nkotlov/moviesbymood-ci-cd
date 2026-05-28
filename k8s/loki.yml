@@ -1,0 +1,84 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: loki-config
+  namespace: kotlov20260516
+data:
+  loki-config.yml: |
+    auth_enabled: false
+
+    server:
+      http_listen_port: 3100
+
+    common:
+      path_prefix: /loki
+      storage:
+        filesystem:
+          chunks_directory: /loki/chunks
+          rules_directory: /loki/rules
+      replication_factor: 1
+      ring:
+        kvstore:
+          store: inmemory
+
+    schema_config:
+      configs:
+        - from: 2024-01-01
+          store: boltdb-shipper
+          object_store: filesystem
+          schema: v11
+          index:
+            prefix: index_
+            period: 24h
+
+    limits_config:
+      allow_structured_metadata: false
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: moviesbymood-loki
+  namespace: kotlov20260516
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: moviesbymood-loki
+  template:
+    metadata:
+      labels:
+        app: moviesbymood-loki
+    spec:
+      containers:
+        - name: loki
+          image: grafana/loki:2.9.8
+          args:
+            - -config.file=/etc/loki/loki-config.yml
+          ports:
+            - containerPort: 3100
+          volumeMounts:
+            - name: loki-config
+              mountPath: /etc/loki/loki-config.yml
+              subPath: loki-config.yml
+            - name: loki-data
+              mountPath: /loki
+      volumes:
+        - name: loki-config
+          configMap:
+            name: loki-config
+        - name: loki-data
+          emptyDir: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: moviesbymood-loki
+  namespace: kotlov20260516
+spec:
+  selector:
+    app: moviesbymood-loki
+  ports:
+    - port: 3100
+      targetPort: 3100

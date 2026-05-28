@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="${movieDto.movieId} == null ? 'Добавить фильм' : 'Редактировать фильм'"></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+          rel="stylesheet"/>
+</head>
+<body>
+<div class="container py-4">
+    <a th:href="@{/admin?tab=movies}" class="btn btn-outline-secondary mb-3">← Назад</a>
+    <h1 th:text="${movieDto.movieId} == null ? 'Добавить фильм' : 'Редактировать фильм'"></h1>
+
+    <form th:action="${movieDto.movieId} == null
+                     ? @{/admin/movies}
+                     : @{/admin/movies/{id}(id=${movieDto.movieId})}"
+          th:object="${movieDto}"
+          method="post"
+          enctype="multipart/form-data"
+          class="needs-validation"
+          novalidate>
+
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <div th:if="${movieDto.moviePoster}">
+            <input type="hidden" th:field="*{moviePoster}" />
+        </div>
+
+        <div class="mb-3">
+            <label for="movieTitle" class="form-label">Название <span class="text-danger">*</span></label>
+            <input type="text" id="movieTitle" th:field="*{movieTitle}"
+                   class="form-control" required/>
+            <div class="invalid-feedback"
+                 th:if="${#fields.hasErrors('movieTitle')}"
+                 th:errors="*{movieTitle}"></div>
+        </div>
+
+        <div class="mb-3">
+            <label for="movieDescription" class="form-label">Описание</label>
+            <textarea id="movieDescription" th:field="*{movieDescription}"
+                      class="form-control" rows="3"></textarea>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="movieReleaseDate" class="form-label">Дата выхода</label>
+                <input type="date" id="movieReleaseDate" th:field="*{movieReleaseDate}"
+                       class="form-control"/>
+            </div>
+            <div class="mb-3">
+                <label for="movieDuration">Длительность (мин.)</label>
+                <input type="number"
+                       id="movieDuration"
+                       th:field="*{movieDuration}"
+                       class="form-control"
+                       min="1"
+                       required/>
+                <div class="invalid-feedback"
+                     th:if="${#fields.hasErrors('movieDuration')}"
+                     th:errors="*{movieDuration}"></div>
+            </div>
+        </div>
+
+        <div th:if="${movieDto.moviePoster != null}" class="mb-3">
+            <label class="form-label">Текущее фото</label>
+            <div>
+                <img th:src="@{${movieDto.moviePoster}}"
+                     class="img-thumbnail mb-2"
+                     style="max-width:200px;"
+                     alt="Постер фильма"/>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <label for="posterFile" class="form-label">Загрузить фото</label>
+            <input type="file" id="posterFile" name="posterFile" accept="image/*" class="form-control"/>
+
+            <div id="posterPreviewContainer" class="mt-2" style="display: none;">
+                <label class="form-label">Новый постер:</label><br/>
+                <img id="posterPreview" class="img-thumbnail" style="max-width:200px;" alt="Preview"/>
+            </div>
+        </div>
+
+
+        <div id="selectedGenreIdsInputs">
+            <input th:each="gid : ${movieDto.genreIds}"
+                   type="hidden"
+                   name="genreIds"
+                   th:value="${gid}" />
+        </div>
+
+        <div id="selectedActorIdsInputs">
+            <input th:each="aid : ${movieDto.actorIds}"
+                   type="hidden"
+                   name="actorIds"
+                   th:value="${aid}" />
+        </div>
+
+        <div id="selectedDirectorIdsInputs">
+            <input th:each="did : ${movieDto.directorIds}"
+                   type="hidden"
+                   name="directorIds"
+                   th:value="${did}" />
+        </div>
+
+        <div class="mb-4">
+            <label class="form-label">Жанры</label>
+            <input type="text" id="genreSearch" class="form-control mb-2"
+                   placeholder="Фильтр…"
+                   onkeyup="filterTable('genreSearch','.genre-row','.genre-name')"/>
+            <div class="table-responsive" style="max-height:200px; overflow-y:auto">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                    <tr><th>Название</th><th style="width:120px">Действие</th></tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="g : ${allGenres}"
+                        class="genre-row"
+                        th:classappend="${movieDto.genreIds.contains(g.genreId)} ? 'table-success'">
+                        <td class="genre-name" th:text="${g.genreName}"></td>
+                        <td>
+                            <button type="button"
+                                    class="btn btn-sm"
+                                    th:classappend="${movieDto.genreIds.contains(g.genreId)} ? 'btn-danger' : 'btn-outline-primary'"
+                                    th:text="${movieDto.genreIds.contains(g.genreId)} ? 'Убрать' : 'Добавить'"
+                                    th:attr="data-id=${g.genreId}"
+                                    onclick="toggleItem(this,'genreIds')">
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <label class="form-label">Актёры</label>
+            <input type="text" id="actorSearch" class="form-control mb-2"
+                   placeholder="Фильтр…"
+                   onkeyup="filterTable('actorSearch','.actor-row','.actor-name')"/>
+            <div class="table-responsive" style="max-height:200px; overflow-y:auto">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                    <tr><th>Имя</th><th style="width:120px">Действие</th></tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="a : ${allActors}"
+                        class="actor-row"
+                        th:classappend="${movieDto.actorIds.contains(a.actorId)} ? 'table-success'">
+                        <td class="actor-name" th:text="${a.actorFullName}"></td>
+                        <td>
+                            <button type="button"
+                                    class="btn btn-sm"
+                                    th:classappend="${movieDto.actorIds.contains(a.actorId)} ? 'btn-danger' : 'btn-outline-primary'"
+                                    th:text="${movieDto.actorIds.contains(a.actorId)} ? 'Убрать' : 'Добавить'"
+                                    th:attr="data-id=${a.actorId}"
+                                    onclick="toggleItem(this,'actorIds')">
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <label class="form-label">Режиссёры</label>
+            <input type="text" id="directorSearch" class="form-control mb-2"
+                   placeholder="Фильтр…"
+                   onkeyup="filterTable('directorSearch','.director-row','.director-name')"/>
+            <div class="table-responsive" style="max-height:200px; overflow-y:auto">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                    <tr><th>Имя</th><th style="width:120px">Действие</th></tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="d : ${allDirectors}"
+                        class="director-row"
+                        th:classappend="${movieDto.directorIds.contains(d.directorId)} ? 'table-success'">
+                        <td class="director-name" th:text="${d.directorFullName}"></td>
+                        <td>
+                            <button type="button"
+                                    class="btn btn-sm"
+                                    th:classappend="${movieDto.directorIds.contains(d.directorId)} ? 'btn-danger' : 'btn-outline-primary'"
+                                    th:text="${movieDto.directorIds.contains(d.directorId)} ? 'Убрать' : 'Добавить'"
+                                    th:attr="data-id=${d.directorId}"
+                                    onclick="toggleItem(this,'directorIds')">
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary"
+                th:text="${movieDto.movieId} == null ? 'Добавить' : 'Сохранить'"></button>
+        <a th:href="@{/admin?tab=movies}" class="btn btn-secondary ms-2">Отмена</a>
+    </form>
+</div>
+
+<script>
+    (() => {
+        'use strict';
+        document.querySelectorAll('.needs-validation').forEach(f => {
+            f.addEventListener('submit', e => {
+                if (!f.checkValidity()) {
+                    e.preventDefault(); e.stopPropagation();
+                }
+                f.classList.add('was-validated');
+            });
+        });
+    })();
+
+    function filterTable(inputId, rowSel, nameSel) {
+        const txt = document.getElementById(inputId).value.toLowerCase();
+        document.querySelectorAll(rowSel).forEach(r => {
+            r.style.display = r.querySelector(nameSel).textContent
+                .toLowerCase().includes(txt) ? '' : 'none';
+        });
+    }
+
+    function toggleItem(btn, fieldName) {
+        const id = btn.getAttribute('data-id');
+        const container = document.getElementById(
+            'selected' + fieldName.charAt(0).toUpperCase() + fieldName.slice(1) + 'Inputs'
+        );
+        const existing = container.querySelector(`input[name="${fieldName}"][value="${id}"]`);
+        if (existing) {
+            existing.remove();
+            btn.textContent = 'Добавить';
+            btn.classList.replace('btn-danger','btn-outline-primary');
+        } else {
+            const inp = document.createElement('input');
+            inp.type  = 'hidden';
+            inp.name  = fieldName;
+            inp.value = id;
+            container.appendChild(inp);
+            btn.textContent = 'Убрать';
+            btn.classList.replace('btn-outline-primary','btn-danger');
+        }
+    }
+
+    document.getElementById('posterFile').addEventListener('change', function() {
+        const file = this.files[0];
+        const container = document.getElementById('posterPreviewContainer');
+        const img       = document.getElementById('posterPreview');
+
+        if (file) {
+            container.style.display = '';
+            img.src = URL.createObjectURL(file);
+        } else {
+            container.style.display = 'none';
+            img.src = '';
+        }
+    });
+
+    (() => {
+        'use strict';
+        document.querySelectorAll('.needs-validation').forEach(form => {
+            form.addEventListener('submit', e => {
+                if (!form.checkValidity()) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    })();
+</script>
+</body>
+</html>
