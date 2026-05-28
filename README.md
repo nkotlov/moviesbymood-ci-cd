@@ -1,8 +1,8 @@
 # Практическая работа по DevOps
 
-# Студент: Котлов Никита
-# Группа: 11-306
-# Проект: MoviesByMood CI/CD
+**Студент:** Котлов Никита
+**Группа:** 11-306
+**Проект:** MoviesByMood CI/CD
 
 ## Задание
 
@@ -12,16 +12,16 @@
 
 В работе реализовано:
 
-```text
-автоматическая сборка Java-приложения
-сборка Docker-образа
-публикация Docker-образа в GitHub Container Registry
-ручной запуск workflow
-автоматический запуск workflow при push и pull request
-Telegram-уведомления о запуске и результате сборки
-```
+* автоматическая сборка Java-приложения;
+* сборка Docker-образа;
+* публикация Docker-образа в GitHub Container Registry;
+* ручной запуск workflow;
+* автоматический запуск workflow при `push` и `pull request`;
+* Telegram-уведомления о запуске и результате сборки.
 
 ## Ссылка на проект
+
+Репозиторий GitHub:
 
 ```text
 https://github.com/nkotlov/moviesbymood-ci-cd
@@ -29,40 +29,40 @@ https://github.com/nkotlov/moviesbymood-ci-cd
 
 ## Ссылка на Docker-образ
 
+Docker-образ опубликован в GitHub Container Registry:
+
 ```text
 ghcr.io/nkotlov/moviesbymood-ci-cd:latest
 ```
 
-Пример загрузки образа:
+Команда для загрузки образа:
 
 ```bash
 docker pull ghcr.io/nkotlov/moviesbymood-ci-cd:latest
 ```
 
-## Описание приложения
+## Краткое описание приложения
 
 MoviesByMood — веб-приложение для подбора фильмов по настроению.
 
-Пользователь может просматривать фильмы, жанры, актеров, режиссеров, категории настроений, а также работать с профилем, рейтингами, комментариями и плейлистами.
+В приложении реализованы авторизация, каталог фильмов, фильтрация по параметрам, работа с пользователями, плейлистами, рейтингами и комментариями.
 
-Приложение использует базу данных PostgreSQL для хранения данных.
+Данные приложения хранятся в PostgreSQL.
 
 ## Используемый стек
 
-```text
-Java 20
-Spring Boot
-Maven
-Spring Security
-Spring Data JPA
-Thymeleaf
-PostgreSQL
-Docker
-Docker Compose
-GitHub Actions
-GitHub Container Registry
-Telegram Bot API
-```
+* Java 20;
+* Spring Boot;
+* Maven;
+* Spring Security;
+* Spring Data JPA;
+* Thymeleaf;
+* PostgreSQL;
+* Docker;
+* Docker Compose;
+* GitHub Actions;
+* GitHub Container Registry;
+* Telegram Bot API.
 
 ## Структура CI/CD
 
@@ -80,11 +80,9 @@ Telegram Bot API
 
 Workflow запускается в следующих случаях:
 
-```text
-push в ветку main
-pull request в ветку main
-ручной запуск через workflow_dispatch
-```
+* при `push` в ветку `main`;
+* при `pull request` в ветку `main`;
+* вручную через `workflow_dispatch`.
 
 Ручной запуск выполняется через вкладку `Actions` в GitHub.
 
@@ -96,20 +94,22 @@ pull request в ветку main
 
 После запуска GitHub Actions выполняет следующие шаги:
 
-```text
-1. Отправляет уведомление в Telegram о запуске workflow
-2. Загружает исходный код из репозитория
-3. Устанавливает Java
-4. Собирает приложение через Maven
-5. Собирает Docker-образ приложения
-6. Выполняет вход в GitHub Container Registry
-7. Публикует Docker-образ в GHCR
-8. Отправляет уведомление в Telegram о результате сборки
-```
+1. Отправляет уведомление в Telegram о запуске workflow.
+2. Загружает исходный код из репозитория.
+3. Устанавливает Java.
+4. Собирает приложение через Maven.
+5. Собирает Docker-образ приложения.
+6. Выполняет вход в GitHub Container Registry.
+7. Публикует Docker-образ в GHCR.
+8. Отправляет уведомление в Telegram о результате сборки.
 
 Скриншот успешного выполнения workflow:
 
 ![Успешное выполнение workflow](screenshots/actions_manual_run_success.png)
+
+Скриншот выполнения workflow после запуска через push:
+
+![Успешный workflow после push](screenshots/github_actions_success.png)
 
 Скриншот шагов workflow:
 
